@@ -1,9 +1,9 @@
 *,
 *::before,
 *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
 }
 
 /*===========
@@ -11,36 +11,36 @@
 	===========*/
 
 .imageBoard {
-  display: flex;
-  justify-content: center;
+	display: flex;
+	justify-content: center;
 }
 
 .img-main {
-  margin-top: 20px;
-  width: 98vw;
+	margin-top: 20px;
+	width: 98vw;
 }
 
-.img-target {
-  display: flex;
-  position: absolute;
+.img-targeting {
+	display: flex;
+	position: absolute;
 }
 
 .img-box {
-  width: 100px;
-  height: 100px;
-  border: thick solid white;
+	width: 100px;
+	height: 100px;
+	border: thick solid white;
 }
 
-.img-target li {
-  font-size: 20px;
-  padding: 10px;
-  text-align: center;
-  border: thin solid black;
-  background-color: rgba(255, 255, 255, 0.808);
-  list-style-type: none;
-  cursor: pointer;
+.img-targeting li {
+	font-size: 20px;
+	padding: 10px;
+	text-align: center;
+	border: thin solid black;
+	background-color: rgba(255, 255, 255, 0.808);
+	list-style-type: none;
+	cursor: pointer;
 }
 
 .img-target li:hover {
-  background-color: white;
+	background-color: white;
 }

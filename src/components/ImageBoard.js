@@ -1,55 +1,83 @@
 import React, { useEffect, useState } from 'react';
+import mainImg from '../images/mk.jpg';
+import firebaseStorage from '../modules/firebaseStorage';
 
 function ImageBoard() {
-  const [isTargetingVisible, setIsTargetingVisible] = useState(false);
-  const [targetList, setTargetList] = useState([]);
+	const [isTargetingVisible, setIsTargetingVisible] = useState(false);
+	const [targetList, setTargetList] = useState([]);
+	const [mouseXY, setMouseXY] = useState({});
+	const [foundMarkers, setFoundMarkers] = useState([]);
 
-  const displayTargetingBox = (e) => {
-    const imgTargeting = document.querySelector('.img-target');
-    const { pageX, pageY } = e;
-    // const imgTargetingBoundaries = e.target.getBoundingClientRect();
+	const displayTargetingBox = (e) => {
+		const imgTargeting = document.querySelector('.img-targeting');
+		const { pageX, pageY } = e;
 
-    // const relativeX = pageX - imgTargetingBoundaries.left;
-    // const relativeY = pageY - imgTargetingBoundaries.top;
+		imgTargeting.style.left = `${pageX - 50}px`;
+		imgTargeting.style.top = `${pageY - 50}px`;
 
-    imgTargeting.style.left = `${pageX - 50}px`;
-    imgTargeting.style.top = `${pageY - 50}px`;
+		if (isTargetingVisible) setIsTargetingVisible(false);
+		else {
+			const imgTargetingBoundaries = e.target.getBoundingClientRect();
 
-    if (isTargetingVisible) setIsTargetingVisible(false);
-    else setIsTargetingVisible(true);
+			setIsTargetingVisible(true);
+			setMouseXY({
+				relativeX: pageX - imgTargetingBoundaries.left - window.scrollX,
+				relativeY: pageY - imgTargetingBoundaries.top - window.scrollY,
+			});
+			console.log(
+				`rX: ${
+					pageX - imgTargetingBoundaries.left - window.scrollX
+				}, X: ${pageX}`,
+				`rY: ${
+					pageY - imgTargetingBoundaries.top - window.scrollY
+				}, Y: ${pageY}`
+			);
+		}
+	};
 
-    // console.log(`x: ${pageX}`, `y: ${pageY}`);
-  };
+	const handleListClick = async (name) => {
+		const locationData = await firebaseStorage.checkCharacterLocation(name);
+		const { x, y } = locationData;
 
-  // const generateTargetList = async () => {
-  // 	const locationsData = await db.collection('locations').get();
+		if (
+			x - 60 <= mouseXY.relativeX &&
+			mouseXY.relativeX <= x + 60 &&
+			y - 60 <= mouseXY.relativeY &&
+			mouseXY.relativeY <= y + 60
+		) {
+			console.log('hit');
+		} else console.log('not it');
+	};
 
-  // 	return locationsData.docs.map((doc) => (
-  // 		<li key={doc.id}>{doc.data().name}</li>
-  // 	));
-  // };
+	const placeFoundMarker = () => {};
 
-  // useEffect(async () => {
-  // 	const list = await generateTargetList();
-  // 	setTargetList(list);
-  // }, []);
+	useEffect(async () => {
+		const characters = await firebaseStorage.generateTargetArray();
+		setTargetList(
+			characters.map((character) => (
+				<li key={character.id} onClick={() => handleListClick(character.name)}>
+					{character.name}
+				</li>
+			))
+		);
+	}, [mouseXY]);
 
-  return (
-    <div className='imageBoard'>
-      <img
-        className='img-main'
-        src='./images/mk.jpg'
-        alt='mortal kombat'
-        onClick={(e) => displayTargetingBox(e)}
-      />
-      <div
-        className='img-target'
-        style={{ visibility: isTargetingVisible ? 'visible' : 'hidden' }}>
-        <div className='img-box' />
-        <ul>{targetList}</ul>
-      </div>
-    </div>
-  );
+	return (
+		<div className='imageBoard'>
+			<img
+				className='img-main'
+				src={mainImg}
+				alt='mortal kombat'
+				onClick={(e) => displayTargetingBox(e)}
+			/>
+			<div
+				className='img-targeting'
+				style={{ visibility: isTargetingVisible ? 'visible' : 'hidden' }}>
+				<div className='img-box' />
+				<ul>{targetList}</ul>
+			</div>
+		</div>
+	);
 }
 
 export default ImageBoard;
