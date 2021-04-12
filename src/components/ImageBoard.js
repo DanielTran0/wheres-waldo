@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import mainImg from '../images/mk.jpg';
-import firebaseStorage from '../modules/firebaseStorage';
 
-function ImageBoard() {
+function ImageBoard(props) {
 	const [isTargetingVisible, setIsTargetingVisible] = useState(false);
-	const [targetList, setTargetList] = useState([]);
 	const [mouseXY, setMouseXY] = useState({});
-	const [foundMarkers, setFoundMarkers] = useState([]);
 
 	const displayTargetingBox = (e) => {
 		const imgTargeting = document.querySelector('.img-targeting');
@@ -24,43 +22,17 @@ function ImageBoard() {
 				relativeX: pageX - imgTargetingBoundaries.left - window.scrollX,
 				relativeY: pageY - imgTargetingBoundaries.top - window.scrollY,
 			});
-			console.log(
-				`rX: ${
-					pageX - imgTargetingBoundaries.left - window.scrollX
-				}, X: ${pageX}`,
-				`rY: ${
-					pageY - imgTargetingBoundaries.top - window.scrollY
-				}, Y: ${pageY}`
-			);
 		}
 	};
 
-	const handleListClick = async (name) => {
-		const locationData = await firebaseStorage.checkCharacterLocation(name);
-		const { x, y } = locationData;
-
-		if (
-			x - 60 <= mouseXY.relativeX &&
-			mouseXY.relativeX <= x + 60 &&
-			y - 60 <= mouseXY.relativeY &&
-			mouseXY.relativeY <= y + 60
-		) {
-			console.log('hit');
-		} else console.log('not it');
-	};
-
-	const placeFoundMarker = () => {};
-
-	useEffect(async () => {
-		const characters = await firebaseStorage.generateTargetArray();
-		setTargetList(
-			characters.map((character) => (
-				<li key={character.id} onClick={() => handleListClick(character.name)}>
-					{character.name}
-				</li>
-			))
-		);
-	}, [mouseXY]);
+	const generateTargetingList = () =>
+		props.targets.map((target) => (
+			<li
+				key={target.id}
+				onClick={() => props.targetFound(target.location, mouseXY)}>
+				{target.name}
+			</li>
+		));
 
 	return (
 		<div className='imageBoard'>
@@ -74,10 +46,24 @@ function ImageBoard() {
 				className='img-targeting'
 				style={{ visibility: isTargetingVisible ? 'visible' : 'hidden' }}>
 				<div className='img-box' />
-				<ul>{targetList}</ul>
+				<ul>{generateTargetingList()}</ul>
 			</div>
 		</div>
 	);
 }
 
 export default ImageBoard;
+
+ImageBoard.propTypes = {
+	targets: PropTypes.arrayOf(
+		PropTypes.shape({
+			found: PropTypes.bool,
+			name: PropTypes.string,
+			location: PropTypes.shape({
+				x: PropTypes.number,
+				y: PropTypes.number,
+			}),
+		})
+	).isRequired,
+	targetFound: PropTypes.func.isRequired,
+};

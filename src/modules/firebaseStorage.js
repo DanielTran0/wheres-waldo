@@ -21,27 +21,19 @@ if (!firebase.apps.length) {
 const firebaseStorage = (() => {
 	const db = firebase.firestore();
 
-	const generateTargetArray = async () => {
+	const generateTargetDataArray = async () => {
 		const charactersData = await db
 			.collection('characters')
 			.orderBy('name')
 			.get();
 
 		return charactersData.docs.map((doc) => ({
+			...doc.data(),
 			id: doc.id,
-			name: doc.data().name,
 		}));
 	};
 
-	const checkCharacterLocation = async (name) => {
-		const character = await db
-			.collection('characters')
-			.where('name', '==', name)
-			.get();
-		return character.docs[0].data().location;
-	};
-
-	return { generateTargetArray, checkCharacterLocation };
+	return { generateTargetDataArray };
 })();
 
 export default firebaseStorage;
