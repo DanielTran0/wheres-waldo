@@ -28,6 +28,9 @@ function Scores(props) {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+
+		if (inputValue === '') return;
+
 		firebaseStorage.addNewHighScore(inputValue, timer);
 		setIsFormSubmitted(true);
 	};
