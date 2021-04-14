@@ -360,7 +360,7 @@ button {
 	}
 }
 
-@media (max-width: 424px) {
+@media (max-width: 425px) {
 	body {
 		margin-top: 75px;
 	}
@@ -416,11 +416,12 @@ button {
 	}
 
 	.img-targeting li {
-		font-size: 12px;
+		font-size: 6px;
+		padding: 0;
 	}
 
 	.foundMarker {
-		font-size: 11px;
+		font-size: 6px;
 	}
 }
 
@@ -473,10 +474,10 @@ button {
 	}
 
 	.img-targeting li {
-		font-size: 11px;
+		font-size: 4px;
 	}
 
 	.foundMarker {
-		font-size: 9px;
+		font-size: 4px;
 	}
 }
