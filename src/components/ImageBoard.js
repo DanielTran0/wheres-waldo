@@ -1,14 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import mainImg from '../images/mk.jpg';
 
 function ImageBoard(props) {
+	const {
+		targets,
+		targetFound,
+		isGameStart,
+		isGameOver,
+		checkForGameOver,
+	} = props;
 	const DEFAULT_IMG_WIDTH = 2543;
 	const DEFAULT_IMG_HEIGHT = 3169.89;
 	const [isTargetingVisible, setIsTargetingVisible] = useState(false);
 	const [mouseXY, setMouseXY] = useState({});
 	const [browserWindowData, setBrowserWindowData] = useState({});
+	const [foundMarkers, setFoundMarkers] = useState([]);
 	const imgTargeting = document.querySelector('.img-targeting');
+	const markerRef = useRef(null);
+
+	const targetWindowCalculations = () => {
+		const widthDifference =
+			Math.floor((browserWindowData.width / DEFAULT_IMG_WIDTH) * 100) / 100;
+		const heightDifference =
+			Math.floor((browserWindowData.height / DEFAULT_IMG_HEIGHT) * 100) / 100;
+
+		return { widthDifference, heightDifference };
+	};
 
 	const displayTargetingBox = (e) => {
 		const { pageX, pageY } = e;
@@ -32,11 +50,13 @@ function ImageBoard(props) {
 	};
 
 	const generateFoundMarker = () =>
-		props.targets.map((target) => (
-			<div key={target.id} className='foundMarker' data-id={target.id}>
-				{target.name}
-			</div>
-		));
+		setFoundMarkers(
+			targets.map((target) => (
+				<div key={target.id} className='foundMarker' data-id={target.id}>
+					{target.name}
+				</div>
+			))
+		);
 
 	const displayFoundMarker = (characterId) => {
 		const markerDiv = document.querySelector(`[data-id='${characterId}']`);
@@ -65,17 +85,8 @@ function ImageBoard(props) {
 		}, 3000);
 	};
 
-	const targetWindowCalculations = () => {
-		const widthDifference =
-			Math.floor((browserWindowData.width / DEFAULT_IMG_WIDTH) * 100) / 100;
-		const heightDifference =
-			Math.floor((browserWindowData.height / DEFAULT_IMG_HEIGHT) * 100) / 100;
-
-		return { widthDifference, heightDifference };
-	};
-
 	const generateTargetingList = () =>
-		props.targets.map(
+		targets.map(
 			(target) =>
 				!target.found && (
 					<li
@@ -84,7 +95,7 @@ function ImageBoard(props) {
 							setIsTargetingVisible(false);
 
 							if (
-								!props.targetFound(
+								!targetFound(
 									target.location,
 									mouseXY,
 									target.id,
@@ -95,6 +106,7 @@ function ImageBoard(props) {
 							}
 
 							displayTargetFoundMessage(true, target.name);
+							checkForGameOver();
 
 							return displayFoundMarker(target.id);
 						}}>
@@ -102,6 +114,14 @@ function ImageBoard(props) {
 					</li>
 				)
 		);
+
+	useEffect(() => {
+		generateFoundMarker();
+	}, [isGameStart]);
+
+	useEffect(() => {
+		setFoundMarkers();
+	}, [isGameOver]);
 
 	return (
 		<div className='imageBoard'>
@@ -117,7 +137,9 @@ function ImageBoard(props) {
 				<div className='img-box' />
 				<ul>{generateTargetingList()}</ul>
 			</div>
-			<div className='foundMarkers'>{generateFoundMarker()}</div>
+			<div ref={markerRef} className='foundMarkers'>
+				{foundMarkers}
+			</div>
 			<div className='targetFoundMessage' />
 		</div>
 	);
@@ -137,4 +159,7 @@ ImageBoard.propTypes = {
 		})
 	).isRequired,
 	targetFound: PropTypes.func.isRequired,
+	checkForGameOver: PropTypes.func.isRequired,
+	isGameStart: PropTypes.bool.isRequired,
+	isGameOver: PropTypes.bool.isRequired,
 };

@@ -33,7 +33,24 @@ const firebaseStorage = (() => {
 		}));
 	};
 
-	return { generateTargetDataArray };
+	const generateUserScoresArray = async () => {
+		const userScoreData = await db
+			.collection('scores')
+			.orderBy('time', 'asc')
+			.limit(10)
+			.get();
+
+		return userScoreData.docs.map((doc) => ({
+			...doc.data(),
+			id: doc.id,
+		}));
+	};
+
+	const addNewHighScore = (name, time) => {
+		db.collection('scores').add({ name, time });
+	};
+
+	return { generateTargetDataArray, generateUserScoresArray, addNewHighScore };
 })();
 
 export default firebaseStorage;

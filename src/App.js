@@ -3,12 +3,35 @@ import './App.css';
 import ImageBoard from './components/ImageBoard';
 import Nav from './components/Nav';
 import PageOverlay from './components/PageOverlay';
+import Scores from './components/Scores';
 import firebaseStorage from './modules/firebaseStorage';
 import verifyLocation from './modules/verifyLocation';
 
 function App() {
+	const [isGameStart, setIsGameStart] = useState(false);
+	const [isGameOver, setIsGameOver] = useState(false);
 	const [targets, setTargets] = useState([]);
-	const [isGameOver, setIsGameOver] = useState(true);
+	const [timer, setTimer] = useState(0);
+	const [userScores, setUserScores] = useState([]);
+
+	const startGame = () => {
+		setIsGameStart(true);
+	};
+
+	const checkForGameOver = () => {
+		if (targets.every((target) => target.found)) {
+			setIsGameOver(true);
+		}
+	};
+
+	const restartGame = () => {
+		const resetTargets = [...targets];
+
+		setIsGameStart(false);
+		setIsGameOver(false);
+		setTargets(resetTargets.map((target) => ({ ...target, found: false })));
+		setTimer(0);
+	};
 
 	const targetFound = (
 		characterLocation,
@@ -33,23 +56,43 @@ function App() {
 		return true;
 	};
 
-	const displayOverlay = () => {
-		const overlay = document.querySelector('.pageOverlay');
-		overlay.style.display = 'flex';
-	};
-
 	useEffect(async () => {
 		const targetData = await firebaseStorage.generateTargetDataArray();
 
 		setTargets(targetData);
-		displayOverlay();
 	}, []);
+
+	useEffect(async () => {
+		if (!isGameOver && !isGameOver) {
+			const userScoresData = await firebaseStorage.generateUserScoresArray();
+			setUserScores(userScoresData);
+		}
+	}, [isGameStart, isGameOver]);
 
 	return (
 		<div className='app'>
-			<PageOverlay displayOverlay={displayOverlay} />
-			<Nav targets={targets} />
-			<ImageBoard targets={targets} targetFound={targetFound} />
+			<PageOverlay isGameStart={isGameStart} startGame={startGame} />
+			<Scores
+				isGameStart={isGameStart}
+				isGameOver={isGameOver}
+				timer={timer}
+				restartGame={restartGame}
+				userScores={userScores}
+			/>
+			<Nav
+				targets={targets}
+				isGameStart={isGameStart}
+				isGameOver={isGameOver}
+				timer={timer}
+				setTimer={setTimer}
+			/>
+			<ImageBoard
+				targets={targets}
+				targetFound={targetFound}
+				isGameStart={isGameStart}
+				isGameOver={isGameOver}
+				checkForGameOver={checkForGameOver}
+			/>
 		</div>
 	);
 }

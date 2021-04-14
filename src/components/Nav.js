@@ -5,12 +5,14 @@ import johnny from '../images/johnny.png';
 import kabal from '../images/kabal.png';
 import kung from '../images/kung.png';
 import stryker from '../images/stryker.png';
+import Timer from './Timer';
 
 function Nav(props) {
+	const { targets, isGameStart, isGameOver, timer, setTimer } = props;
 	const images = [vorah, johnny, kabal, kung, stryker];
 
 	const generateTargetIcons = () =>
-		props.targets.map((target, index) => (
+		targets.map((target, index) => (
 			<div key={target.id} className='icon'>
 				<img
 					className={target.found ? 'img-found' : ''}
@@ -24,6 +26,12 @@ function Nav(props) {
 	return (
 		<div className='nav'>
 			<div className='icons'>{generateTargetIcons()}</div>
+			<Timer
+				isGameStart={isGameStart}
+				isGameOver={isGameOver}
+				timer={timer}
+				setTimer={setTimer}
+			/>
 		</div>
 	);
 }
@@ -41,4 +49,8 @@ Nav.propTypes = {
 			}),
 		})
 	).isRequired,
+	isGameStart: PropTypes.bool.isRequired,
+	isGameOver: PropTypes.bool.isRequired,
+	timer: PropTypes.number.isRequired,
+	setTimer: PropTypes.func.isRequired,
 };

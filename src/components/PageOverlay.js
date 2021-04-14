@@ -1,32 +1,30 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import vorah from '../images/overlay/vorah.png';
 import johnny from '../images/overlay/johnny.png';
 import kabal from '../images/overlay/kabal.png';
 import kung from '../images/overlay/kung.png';
 import stryker from '../images/overlay/stryker.png';
 
-function PageOverlay() {
+function PageOverlay(props) {
+	const { isGameStart, startGame } = props;
 	const images = [vorah, johnny, kabal, kung, stryker];
-	const button = document.querySelector('.overlay-body button');
-	const overlay = document.querySelector('.pageOverlay');
 
 	const generateIcons = () =>
 		images.map((image) => <img key={image} src={image} alt='character icon' />);
 
-	const turnOffOverlay = () => {
-		overlay.style.display = 'none';
+	const handleMouseEnter = (e) => {
+		e.target.textContent = 'Finish Him';
 	};
 
-	const handleMouseEnter = () => {
-		button.textContent = 'Finish Him';
-	};
-
-	const handleMouseLeave = () => {
-		button.textContent = 'Start';
+	const handleMouseLeave = (e) => {
+		e.target.textContent = 'Start';
 	};
 
 	return (
-		<div className='pageOverlay'>
+		<div
+			className='pageOverlay'
+			style={{ display: !isGameStart ? 'flex' : 'none' }}>
 			<div className='overlay-body'>
 				<h1>Where&apos;s Waldo MK Edition</h1>
 				<div className='overlay-images'>{generateIcons()}</div>
@@ -35,7 +33,7 @@ function PageOverlay() {
 				</div>
 				<button
 					type='button'
-					onClick={turnOffOverlay}
+					onClick={startGame}
 					onMouseEnter={handleMouseEnter}
 					onMouseLeave={handleMouseLeave}>
 					Start
@@ -47,3 +45,8 @@ function PageOverlay() {
 }
 
 export default PageOverlay;
+
+PageOverlay.propTypes = {
+	isGameStart: PropTypes.bool.isRequired,
+	startGame: PropTypes.func.isRequired,
+};
